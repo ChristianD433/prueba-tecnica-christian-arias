@@ -3,5 +3,7 @@ package es.nextdigital.demo.entity;
 public enum TransactionType {
     DEPOSIT,
     WITHDRAWAL,
-    FEE
+    TRANSFER_OUT,
+    FEE,
+    TRANSFER_IN
 }
