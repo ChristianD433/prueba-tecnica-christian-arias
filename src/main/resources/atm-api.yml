@@ -1,0 +1,403 @@
+openapi: 3.0.1
+info:
+  title: ATM API
+  version: 1.0.0
+  description: API de cajeros automáticos (prueba técnica Christian)
+
+servers:
+  - url: http://localhost:8080/api/v1
+
+paths:
+  /cards/{cardId}/activate:
+    post:
+      summary: Activa una tarjeta
+      tags:
+        - Card
+      parameters:
+        - $ref: '#/components/parameters/X-ATM-CODE'
+        - $ref: '#/components/parameters/X-CARD-ID'
+        - in: path
+          name: cardId
+          required: true
+          schema:
+            type: long
+      responses:
+        '200':
+          description: Tarjeta activada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardStatusResponse'
+        '400':
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Tarjeta ya activa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tarjeta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /cards/{cardId}/pin:
+    post:
+      summary: Cambia el PIN de la tarjeta
+      tags:
+        - Card
+      parameters:
+        - $ref: '#/components/parameters/X-ATM-CODE'
+        - $ref: '#/components/parameters/X-CARD-ID'
+        - in: path
+          name: cardId
+          required: true
+          schema:
+            type: long
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PinChangeRequest'
+      responses:
+        '200':
+          description: PIN actualizado
+        '400':
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: PIN actual incorrecto o reglas incumplidas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Tarjeta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /accounts/{accountId}/movements:
+    get:
+      summary: Consulta movimientos de la cuenta
+      tags:
+        - Account
+      parameters:
+        - $ref: '#/components/parameters/X-ATM-CODE'
+        - $ref: '#/components/parameters/X-CARD-ID'
+        - in: path
+          name: accountId
+          required: true
+          schema:
+            type: long
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Lista de movimientos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovementsResponse'
+        '400':
+          description: Parámetros inválidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Cuenta no autorizada para esta tarjeta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Cuenta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /accounts/{accountId}/withdraw:
+    post:
+      summary: Retirada de dinero en efectivo
+      tags:
+        - Account
+      parameters:
+        - $ref: '#/components/parameters/X-ATM-CODE'
+        - $ref: '#/components/parameters/X-CARD-ID'
+        - in: path
+          name: accountId
+          required: true
+          schema:
+            type: long
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithdrawRequest'
+      responses:
+        '201':
+          description: Retirada realizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WithdrawResponse'
+        '400':
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Fondos insuficientes, límite excedido o tarjeta no activa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Cuenta o tarjeta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /accounts/{accountId}/deposit:
+    post:
+      summary: Ingreso de dinero
+      tags:
+        - Account
+      parameters:
+        - $ref: '#/components/parameters/X-ATM-CODE'
+        - $ref: '#/components/parameters/X-CARD-ID'
+        - in: path
+          name: accountId
+          required: true
+          schema:
+            type: long
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepositRequest'
+      responses:
+        '201':
+          description: Ingreso realizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepositResponse'
+        '400':
+          description: Petición inválida
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Ingreso no permitido en cajero externo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Cuenta o tarjeta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /accounts/{accountId}/transfer:
+    post:
+      summary: Transferencia a otra cuenta
+      tags:
+        - Account
+      parameters:
+        - $ref: '#/components/parameters/X-ATM-CODE'
+        - $ref: '#/components/parameters/X-CARD-ID'
+        - in: path
+          name: accountId
+          required: true
+          schema:
+            type: long
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+      responses:
+        '201':
+          description: Transferencia realizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferResponse'
+        '400':
+          description: IBAN inválido o petición incorrecta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Transferencia no permitida o tarjeta no activa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Cuenta o tarjeta no encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  parameters:
+    X-ATM-CODE:
+      name: X-ATM-CODE
+      in: header
+      required: true
+      schema:
+        type: long
+      description: Código del cajero que ejecuta la operación
+    X-CARD-ID:
+      name: X-CARD-ID
+      in: header
+      required: true
+      schema:
+        type: long
+      description: Identificador de la tarjeta que está operando
+
+  schemas:
+    PinChangeRequest:
+      type: object
+      properties:
+        oldPin:
+          type: string
+        newPin:
+          type: string
+
+    CardStatusResponse:
+      type: object
+      properties:
+        cardId:
+          type: long
+        isActive:
+          type: boolean
+
+    MovementDto:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        amount:
+          type: number
+          format: double
+        description:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        counterpartyIban:
+          type: string
+
+    MovementsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MovementDto'
+        page:
+          type: integer
+        size:
+          type: integer
+        total:
+          type: integer
+
+    WithdrawRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+
+    WithdrawResponse:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+        fee:
+          type: number
+          format: double
+        newBalance:
+          type: number
+          format: double
+
+    DepositRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+
+    DepositResponse:
+      type: object
+      properties:
+        newBalance:
+          type: number
+          format: double
+
+    TransferRequest:
+      type: object
+      properties:
+        amount:
+          type: number
+          format: double
+        destinationIban:
+          type: string
+        concept:
+          type: string
+
+    TransferResponse:
+      type: object
+      properties:
+        fee:
+          type: number
+          format: double
+        newBalance:
+          type: number
+          format: double
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          example: "INVALID_IBAN"
+        message:
+          type: string
+          example: "El IBAN proporcionado no es válido"
