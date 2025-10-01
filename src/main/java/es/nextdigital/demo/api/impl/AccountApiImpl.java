@@ -4,7 +4,6 @@ import es.nextdigital.api.AccountApi;
 import es.nextdigital.demo.entity.Transaction;
 import es.nextdigital.demo.mapper.TransactionMapper;
 import es.nextdigital.demo.service.AccountService;
-import es.nextdigital.demo.service.impl.AccountServiceImpl;
 import es.nextdigital.dto.DepositRequestDto;
 import es.nextdigital.dto.DepositResponseDto;
 import es.nextdigital.dto.MovementsResponseDto;
@@ -16,10 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
