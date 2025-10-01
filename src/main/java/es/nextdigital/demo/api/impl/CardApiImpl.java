@@ -20,7 +20,7 @@ public class CardApiImpl implements CardApi {
     private final CardMapper cardMapper;
 
     @Override
-    public ResponseEntity<CardStatusResponseDto> cardsCardIdActivatePost(String X_ATM_CODE, String X_CARD_ID,
+    public ResponseEntity<CardStatusResponseDto> cardsCardIdActivatePost(Long X_ATM_CODE, Long X_CARD_ID,
                                                                          Long cardId) {
       Card card = cardService.activateCard(cardId);
 
@@ -28,7 +28,7 @@ public class CardApiImpl implements CardApi {
     }
 
     @Override
-    public ResponseEntity<Void> cardsCardIdPinPost(String X_ATM_CODE, String X_CARD_ID, Long cardId, PinChangeRequestDto pinChangeRequestDto) {
+    public ResponseEntity<Void> cardsCardIdPinPost(Long X_ATM_CODE, Long X_CARD_ID, Long cardId, PinChangeRequestDto pinChangeRequestDto) {
         throw new NotImplementedException();
     }
 }

@@ -278,14 +278,14 @@ components:
       in: header
       required: true
       schema:
-        type: string
+        type: long
       description: Código del cajero que ejecuta la operación
     X-CARD-ID:
       name: X-CARD-ID
       in: header
       required: true
       schema:
-        type: string
+        type: long
       description: Identificador de la tarjeta que está operando
 
   schemas:
@@ -347,8 +347,6 @@ components:
     WithdrawResponse:
       type: object
       properties:
-        refId:
-          type: string
         amount:
           type: number
           format: double
@@ -369,8 +367,6 @@ components:
     DepositResponse:
       type: object
       properties:
-        refId:
-          type: string
         newBalance:
           type: number
           format: double
@@ -389,8 +385,6 @@ components:
     TransferResponse:
       type: object
       properties:
-        refId:
-          type: string
         fee:
           type: number
           format: double
